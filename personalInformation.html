@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="app/assets/css/style.css">
+  <title>Liquid</title>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+
+	<!-- Шрифты с Google Fonts -->
+	<link rel="preconnect" href="https://fonts.gstatic.com">
+	<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="http://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+  integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+  crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+  crossorigin="anonymous"></script>
+
+  <script src="../js/jquery-3.7.1.min.js"></script>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar-navbar">
+	    <div class="container-navbar">
+        <a href="#" class="navbar-brand">Liquid</a>
+        <div class="navbar-wrap">
+          <div class="hamburger menu-toggle">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </div>
+          <ul class="navbar-menu">
+            <li class="first-li"><a href="index.html">Главная</a></li>
+            <li><a href="inventory.html">Инвентарь</a></li>
+            <li class="account-li">
+            <li><a href="account.html" >Аккаунт</a></li> 
+            <li><a href="login.html" id="login">Войти</a></li> 
+            <li><a class="nav-item nav-link" href="javascript:void(0);" id="logout">Выход</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <main role="main" class="container starter-template">
+    <div class="row">
+        <div class="col">
+
+            <!-- Здесь будут подсказки / быстрые сообщения -->
+            <div id="response"></div>
+
+            <!-- Здесь появится основной контент -->
+            <div id="content"></div>
+        </div>
+    </div>
+</main>
+<footer class="footer">
+
+  <div class="container-footer">
+    <div class="row">
+      <div class="footer-col">
+        <h4>Узнайте о нас больше</h4>
+        <ul>
+          <li><a href="#">О компании Liquid</a></li>
+          <li><a href="#">Контакты</a></li>
+          <li><a href="#">Политика конфиденциальности</a></li>
+          <li><a href="#">Вакансии</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Помощь</h4>
+        <ul>
+          <li><a href="#">Как покупать</a></li>
+          <li><a href="#">Распространённые вопросы</a></li>
+          <li><a href="#">Словарь терминов</a></li>
+          <li><a href="#">Техподдержка</a></li>
+          <li><a href="#">Справка</a></li>
+          </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Услуги</h4>
+        <ul>
+          <li><a href="#">Отчёты по авто</a></li>
+          <li><a href="#">Доставка</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Мы в соцсетях</h4>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-vk"></i></a>
+        </div>
+      </div>
+      <div class="footer_bg">
+        <div class="footer_bg_one"></div>
+      </div>
+    </div>
+  </div>
+  </footer>
+  <script>
+    jQuery($ => {
+
+        // Показать форму обновления аккаунта
+        $(document).ready(function () {
+          const jwt = getCookie("jwt");
+          $.post("http://courseWork/api/validate_token.php", JSON.stringify({ jwt: jwt })).done(result => {
+              // Если валидация прошла успешно, покажем данные пользователя в форме
+              showLoggedInMenu()
+              showUpdateAccountForm();
+            })
+
+            // В случае ошибки / сбоя 
+            .fail(result => {
+                showLoginPage();
+            });
+          return false;
+        });
+        // срабатывание при отправке формы «обновить аккаунт»
+        $(document).on("submit", "#update_account_form", function () {
+
+            // Дескриптор для update_account_form
+            const update_account_form = $(this);
+
+            // Валидация JWT для проверки доступа
+            const jwt = getCookie("jwt");
+
+            // Получаем данные формы
+            let update_account_form_obj = update_account_form.serializeObject()
+
+            // Добавим JWT
+            update_account_form_obj.jwt = jwt;
+
+            // Преобразуем значения формы в JSON с помощью функции stringify()
+            const form_data = JSON.stringify(update_account_form_obj);
+
+            // Отправка данных формы в API
+            $.ajax({
+                url: "http://courseWork/api/update_user.php",
+                type: "POST",
+                contentType: "application/json",
+                data: form_data,
+                success: result => {
+
+                    // Сказать, что учетная запись пользователя была обновлена
+                    $("#response").html("<div class='alert alert-success'>Учетная запись обновлена</div>");
+
+                    // Сохраняем новый JWT в cookie
+                    setCookie("jwt", result.jwt, 1);
+                },
+
+                // Показать сообщение об ошибке пользователю
+                error: (xhr, resp, text) => {
+
+                    if (xhr.responseJSON.message == "Невозможно обновить пользователя") {
+                        $("#response").html("<div class='alert alert-danger'>Невозможно обновить пользователя</div>");
+                    }
+
+                    else if (xhr.responseJSON.message == "Доступ закрыт") {
+                        showLoginPage();
+                        $("#response").html("<div class='alert alert-success'>Доступ закрыт. Пожалуйста войдите</div>");
+                    }
+                }
+            });
+
+            return false;
+        });
+
+        // Выйти из системы
+        $(document).on("click", "#logout", () => {
+            showLoginPage();
+        });
+
+
+        // Удаление всех быстрых сообщений
+        function clearResponse() {
+            $("#response").html("");
+        }
+
+
+        // Функция setCookie() поможет нам сохранить JWT в файле cookie
+        function setCookie(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
+
+        // Эта функция сделает меню похожим на опции для пользователя, вышедшего из системы.
+        function showLoggedOutMenu() {
+
+            // Показать кнопку входа и регистрации в меню навигации
+            $("#login").show();
+            $("#logout").hide();
+        }
+
+        // Функция показывает HTML-форму для входа в систему.
+        function showLoginPage() {
+          // Удаление jwt
+          setCookie("jwt", "", 1);
+          $("#content").html(html);
+          clearResponse();
+          showLoggedOutMenu();
+          window.location.replace("login.html");
+        }
+
+        // Функция поможет нам прочитать JWT, который мы сохранили ранее.
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(";");
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == " ") {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        // Если пользователь авторизован
+        function showLoggedInMenu() {
+            // Скроем кнопки входа и регистрации с панели навигации и покажем кнопку выхода
+            $("#login").hide();
+            $("#logout").show();
+        }
+
+        // Здесь будет функция showUpdateAccountForm()
+        function showUpdateAccountForm() {
+            // Валидация JWT для проверки доступа
+            const jwt = getCookie("jwt");
+
+            $.post("http://courseWork/api/validate_token.php", JSON.stringify({ jwt: jwt })).done(result => {
+
+                // Если валидация прошла успешно, покажем данные пользователя в форме
+                let html = `
+                    <h2>Обновление аккаунта</h2>
+                    <form id="update_account_form">
+                        <div class="form-group">
+                            <label for="firstname">Имя</label>
+                            <input type="text" class="form-control" name="firstname" id="firstname" required value="${result.data.firstname}" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastname">Фамилия</label>
+                            <input type="text" class="form-control" name="lastname" id="lastname" required value="${result.data.lastname}" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" class="form-control" name="email" id="email" required value="${result.data.email}" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Пароль</label>
+                            <input type="password" class="form-control" name="password" id="password" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Сохранить
+                        </button>
+                    </form>
+                `;
+
+                clearResponse();
+                $("#content").html(html);
+            })
+
+            // В случае ошибки / сбоя сообщите пользователю, что ему необходимо войти в систему, 
+            // чтобы увидеть страницу учетной записи
+            .fail(result => {
+                showLoginPage();
+                $("#response").html("<div class='alert alert-danger'>Пожалуйста, войдите, чтобы получить доступ к странице учетной записи</div>");
+            });
+        }
+
+        // Функция для преобразования значений формы в формат JSON
+        $.fn.serializeObject = function () {
+            let o = {};
+            let a = this.serializeArray();
+            $.each(a, function () {
+                if (o[this.name] !== undefined) {
+                    if (!o[this.name].push) {
+                        o[this.name] = [o[this.name]];
+                    }
+                    o[this.name].push(this.value || "");
+                } else {
+                    o[this.name] = this.value || "";
+                }
+            });
+            return o;
+        };
+    });
+</script>
+</body>
+</html>
